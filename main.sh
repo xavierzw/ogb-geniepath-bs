@@ -1,1 +1,1 @@
-python train_v2.py --dataset ogbn-products --sampler bandit-mp --learning_rate 1e-3 --epochs 300 --hidden1 256 --neighbor_limit 10 --batchsize 256 --model geniepath
+python train.py --dataset ogbn-proteins --learning_rate 1e-3 --epochs 200 --hidden1 64 --neighbor_limit 10 --batchsize 256

@@ -85,7 +85,6 @@ def preprocess(name, root, dataset):
         num_edge += 1
 
     # adj_full
-    print("generate adj_full...")
     adj_full = sp.coo_matrix((np.ones(num_edge), (edge_index_list[0], edge_index_list[1])),
                              shape=(num_node, num_node))
     sp.save_npz("{}/adj_full.npz".format(dir_gnn_bs), sp.csr_matrix(adj_full))
@@ -126,9 +125,12 @@ def load_data(name):
     root = os.path.join("dataset", dir_name)
     dir_gnn_bs = os.path.join(root, "gnn_bs")
 
+    if not os.path.exists(root):
+        os.mkdir(root)
+
     if not os.path.exists(dir_gnn_bs):
         dataset = NodePropPredDataset(name)
-        print("gnn-bs data preprocess...")
+        print("data preprocess...")
         preprocess(name, root, dataset)
         adj_full = sp.load_npz('{}/adj_full.npz'.format(dir_gnn_bs)).astype(np.bool)
     else:
@@ -155,101 +157,4 @@ def load_data(name):
 
     return adj_full, feats, train_nodes, y_train, \
            valid_nodes, y_valid, test_nodes, y_test
-
-
-def load_subgraph(data_name, split_num):
-    valid_subgraph_nodes = []
-    valid_support = []
-    valid_left = []
-    valid_right = []
-    valid_node_select = []
-    valid_node_map = []
-
-    test_subgraph_nodes = []
-    test_support = []
-    test_left = []
-    test_right = []
-    test_node_select = []
-    test_node_map = []
-    for i in range(split_num):
-        # load valid subgraph
-        valid_subgraph_nodes.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_subgraph_nodes_{}.npy".format(data_name, i),
-                        "rb")))
-        valid_support.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_support_{}.npy".format(data_name, i),
-                        "rb")))
-        valid_left.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_left_{}.npy".format(data_name, i),
-                        "rb")))
-        valid_right.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_right_{}.npy".format(data_name, i),
-                        "rb")))
-        valid_node_select.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_node_select_{}.npy".format(data_name, i),
-                        "rb")))
-        valid_node_map.append(np.load(open(
-                        "./dataset/{}/valid_split/valid_node_map_{}.npy".format(data_name, i),
-                        "rb")).item())
-
-        # load test subgraph
-        test_subgraph_nodes.append(np.load(open(
-                        "./dataset/{}/test_split/test_subgraph_nodes_{}.npy".format(data_name, i),
-                        "rb")))
-        test_support.append(np.load(open(
-                        "./dataset/{}/test_split/test_support_{}.npy".format(data_name, i),
-                        "rb")))
-        test_left.append(np.load(open(
-                        "./dataset/{}/test_split/test_left_{}.npy".format(data_name, i),
-                        "rb")))
-        test_right.append(np.load(open(
-                        "./dataset/{}/test_split/test_right_{}.npy".format(data_name, i),
-                        "rb")))
-        test_node_select.append(np.load(open(
-                        "./dataset/{}/test_split/test_node_select_{}.npy".format(data_name, i),
-                        "rb")))
-        test_node_map.append(np.load(open(
-                        "./dataset/{}/test_split/test_node_map_{}.npy".format(data_name, i),
-                        "rb")).item())
-    return valid_subgraph_nodes, \
-           valid_support, \
-           valid_left, \
-           valid_right, \
-           valid_node_select, \
-           valid_node_map, \
-           test_subgraph_nodes, \
-           test_support, \
-           test_left, \
-           test_right, \
-           test_node_select, \
-           test_node_map
-
-
-def sample_adj(dataset, max_degree):
-    adj_full = sp.load_npz('./data/{}/adj_full.npz'.format(dataset)).astype(np.bool)
-    adj_train = sp.load_npz('./data/{}/adj_train.npz'.format(dataset)).astype(np.bool)
-    adj_full = adj_full.tolil()
-    adj_train = adj_train.tolil()
-
-    num_node = adj_full.shape[0]
-    adj_full_s = sp.lil_matrix((num_node, num_node), dtype=np.bool)
-    adj_train_s = sp.lil_matrix((num_node, num_node), dtype=np.bool)
-
-    for src in range(num_node):
-        dst_list = adj_full[src].rows[0]
-        if len(dst_list) > max_degree:
-            dst_list = np.random.choice(dst_list, max_degree, replace=False)
-        if len(dst_list) > 0:
-            for dst in dst_list:
-                adj_full_s[src, dst] = True
-
-        dst_list = adj_train[src].rows[0]
-        if len(dst_list) > max_degree:
-            dst_list = np.random.choice(dst_list, max_degree, replace=False)
-        if len(dst_list) > 0:
-            for dst in dst_list:
-                adj_train_s[src, dst] = True
-
-    sp.save_npz('./data/{}/adj_full_s.npz'.format(dataset), sp.coo_matrix(adj_full_s))
-    sp.save_npz('./data/{}/adj_train_s.npz'.format(dataset), sp.coo_matrix(adj_train_s))
 

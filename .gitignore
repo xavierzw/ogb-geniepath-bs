@@ -2,6 +2,6 @@
 *.so
 build/
 dataset/
-__pycache__
 save_models/
+__pycache__
 cython_sampler/*.cpp
