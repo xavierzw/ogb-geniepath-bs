@@ -1,0 +1,7 @@
+*.pyc
+*.so
+build/
+dataset/
+__pycache__
+save_models/
+cython_sampler/*.cpp
