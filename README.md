@@ -1,6 +1,6 @@
 # GeniePath-BS: GeniePath with Bandit Sampler
 
-The paper will be published on Arxiv soon.
+Paper link: http://arxiv.org/abs/2006.05806
 
 ## Datasets
 The ogbn-proteins dataset will be downloaded in directory ./dataset automatically.
